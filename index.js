@@ -1,54 +1,68 @@
-const http = require("http");
 const fs = require("fs");
-
 const index = fs.readFileSync("index.html", "utf-8");
 const data = JSON.parse(fs.readFileSync("data.json", "utf-8"));
-
 const products = data.products;
 
-// const data = { age: 5 };
-const server = http.createServer((req, res) => {
-  console.log(req.url, req.method);
+const express = require("express");
 
-  if (req.url.startsWith("/product")) {
-    const id = req.url.split("/")[2];
-    const product = products.find((p) => p.id === +id);
-    console.log(product);
-    res.setHeader("Content-Type", "text/html");
-    let modifiedIndex = index.replace("**title**", product.title).replace("**url**", product.thumbnail).replace("**price**", product.price).replace("**rating**", product.rating);
-    res.end(modifiedIndex);
-    return;
-  }
-  //  "/product":
-  //   res.setHeader("Content-Type", "text/html");
-  //   let modifiedIndex = index.replace("**title**", product.title).replace("**url**", product.thumbnail).replace("**price**", product.price).replace("**rating**", product.rating);
-  //   res.end(modifiedIndex);
-  //   break;
+const morgan = require("morgan");
 
-  switch (req.url) {
-    case "/":
-      res.setHeader("Content-Type", "text/html");
-      res.end(index);
-      break;
-    case "/api":
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify(data));
-      break;
+const server = express();
 
-    default:
-      res.writeHead(404);
-      res.end();
-  }
+server.use(morgan("default"));
 
-  console.log("server started");
-  // res.setHeader("Dummy", "DummyValue");
-  // res.setHeader("Content-Type", "text/html");
+// server.use((req, res, next) => {
+//   console.log(req.method, req.ip, req.hostname, new Date(), req.get("User-Agent"));
+//   next();
+// });
 
-  // res.setHeader("Content-Type", "application/json");
+// bodyParser
+server.use(express.json());
 
-  //   res.end(JSON.stringify(data));
-  // res.end(data);
-  // res.end(index);
+// server.use(express.urlencoded());
+
+server.use(express.static("public")); // stati middleware
+
+const auth = (req, res, next) => {
+  // console.log(req.query);
+
+  // if (req.body.password == "123") {
+  //   next();
+  // } else {
+  //   res.sendStatus(401);
+  // }
+
+  next();
+};
+
+// server.use(auth; application middleware
+
+//API - Endpoint -Route
+
+server.get("/product/:id", auth, (req, res) => {
+  console.log(req.params);
+  res.json({ type: "GET" });
+});
+server.post("/", auth, (req, res) => {
+  res.json({ type: "POST" });
+});
+server.put("/", (req, res) => {
+  res.json({ type: "PUT" });
+});
+server.delete("/", (req, res) => {
+  res.json({ type: "DELETE" });
+});
+server.patch("/", (req, res) => {
+  res.json({ type: "PATCH" });
 });
 
-server.listen(8080);
+server.get("/demo", (req, res) => {
+  //   res.status(201).send("<h1>hello</h1>");
+  // res.sendFile("");
+  // res.json(products);
+  // res.sendStatus(404);
+});
+
+server.listen(8080, () => {
+  console.log("server started");
+});
