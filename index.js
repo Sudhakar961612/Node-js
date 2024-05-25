@@ -1,23 +1,54 @@
-const lib = require("./lib.js");
+const http = require("http");
+const fs = require("fs");
 
-const express = require("express");
+const index = fs.readFileSync("index.html", "utf-8");
+const data = JSON.parse(fs.readFileSync("data.json", "utf-8"));
 
-const server = express();
+const products = data.products;
+
+// const data = { age: 5 };
+const server = http.createServer((req, res) => {
+  console.log(req.url, req.method);
+
+  if (req.url.startsWith("/product")) {
+    const id = req.url.split("/")[2];
+    const product = products.find((p) => p.id === +id);
+    console.log(product);
+    res.setHeader("Content-Type", "text/html");
+    let modifiedIndex = index.replace("**title**", product.title).replace("**url**", product.thumbnail).replace("**price**", product.price).replace("**rating**", product.rating);
+    res.end(modifiedIndex);
+    return;
+  }
+  //  "/product":
+  //   res.setHeader("Content-Type", "text/html");
+  //   let modifiedIndex = index.replace("**title**", product.title).replace("**url**", product.thumbnail).replace("**price**", product.price).replace("**rating**", product.rating);
+  //   res.end(modifiedIndex);
+  //   break;
+
+  switch (req.url) {
+    case "/":
+      res.setHeader("Content-Type", "text/html");
+      res.end(index);
+      break;
+    case "/api":
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify(data));
+      break;
+
+    default:
+      res.writeHead(404);
+      res.end();
+  }
+
+  console.log("server started");
+  // res.setHeader("Dummy", "DummyValue");
+  // res.setHeader("Content-Type", "text/html");
+
+  // res.setHeader("Content-Type", "application/json");
+
+  //   res.end(JSON.stringify(data));
+  // res.end(data);
+  // res.end(index);
+});
+
 server.listen(8080);
-
-console.log("heloo word how are you");
-
-// const fs = require("fs");
-
-// const t1 = performance.now();
-// const txt = fs.readFileSync("demo.txt", "utf-8");
-// console.log(txt);
-// console.log(lib.sum(4, 5), lib.diff(9, 5));
-// console.log(t1);
-
-// const t2 = performance.now();
-// const txt2 = fs.readFile("demo.txt", "utf-8", (err, txt) => {
-//   console.log(txt);
-// });
-// console.log(lib.sum(4, 5), lib.diff(9, 5));
-// console.log(t2);
