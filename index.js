@@ -1,13 +1,14 @@
+require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const server = express();
 const productRouter = require("./routes/product.js");
 const userRouter = require("./routes/user.js");
+console.log("env", process.env.DB_PASSWORD);
 
-// bodyParser
 server.use(morgan("default"));
 server.use(express.json());
-server.use(express.static("public")); // stati middleware
+server.use(express.static(process.env.PUBLIC_DIR)); // stati middleware
 server.use("/products", productRouter.router);
 server.use("/users", userRouter.router);
 
@@ -20,6 +21,6 @@ server.use("/users", userRouter.router);
 // Update PATCH /products/:id
 // Delete DELETE /products/:id
 
-server.listen(8080, () => {
+server.listen(process.env.PORT, () => {
   console.log("server started");
 });
