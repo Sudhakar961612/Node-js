@@ -18,7 +18,7 @@ exports.createProduct = async (req, res) => {
 };
 
 exports.getAllProducts = async (req, res) => {
-  const products = await Product.find({ price: { $lt: 500 } });
+  const products = await Product.find();
   res.json(products);
 };
 // one product Read
